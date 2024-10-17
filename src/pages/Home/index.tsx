@@ -1,10 +1,16 @@
+import { useEffect } from "react";
+
 const Home = () => {
+  useEffect(() => {
+    console.log("check");
+  }, []);
+
   return (
-    <main className='flex h-full w-full flex-col justify-center'>
-      <div className='mx-auto flex flex-col'>
-        <span className='text-4xl font-bold'>SSAFY SANDBOX</span>
+    <main className="flex flex-col justify-center w-full h-full">
+      <div className="flex flex-col mx-auto">
+        <span className="text-4xl font-bold">SSAFY SANDBOX</span>
         <br />
-        <p className='text-gray-500'>
+        <p className="text-gray-500">
           SSAFY Sandbox는 SSAFY 12기 서울 15반에서 백엔드 개발자를 희망하는
           <br />
           친구들이 협업 경험을 보다 쉽게, 그리고 효과적으로 쌓을 수 있도록 하기

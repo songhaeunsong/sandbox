@@ -1,11 +1,11 @@
-import ky from 'ky';
+import ky from "ky";
 
 import {
   getAccessToken,
   getReissue,
   getReissueWithAuthorization,
   getReissueWithCookie,
-} from './authentication';
+} from "./authentication";
 
 interface ErrorResponse {
   status: number;
@@ -13,9 +13,9 @@ interface ErrorResponse {
 }
 
 export const api = ky.create({
-  credentials: 'include',
+  credentials: "include",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   retry: {
     limit: 1,
@@ -25,9 +25,9 @@ export const api = ky.create({
 export const ApiClient = api.extend({
   hooks: {
     beforeRequest: [
-      request => {
+      (request) => {
         if (getAccessToken())
-          request.headers.set('Authorization', `Bearer ${getAccessToken()}`);
+          request.headers.set("Authorization", `Bearer ${getAccessToken()}`);
       },
     ],
     afterResponse: [
@@ -37,7 +37,7 @@ export const ApiClient = api.extend({
 
         const data: ErrorResponse = await response.json();
 
-        if (data.code === 'ERR_ACCESS_TOKEN_EXPIRED') {
+        if (data.code === "ERR_ACCESS_TOKEN_EXPIRED") {
           return getReissue(request);
         }
       },
@@ -48,14 +48,14 @@ export const ApiClient = api.extend({
 export const ApiClientWithAuthorization = api.extend({
   hooks: {
     beforeRequest: [
-      request => {
+      (request) => {
         if (getAccessToken())
-          request.headers.set('Authorization', `Bearer ${getAccessToken()}`);
+          request.headers.set("Authorization", `Bearer ${getAccessToken()}`);
 
-        if (localStorage.getItem('refreshToken-storage'))
+        if (localStorage.getItem("refreshToken-storage"))
           request.headers.set(
-            'X-Refresh',
-            `${localStorage.getItem('refreshToken-storage')}`,
+            "X-Refresh",
+            `${localStorage.getItem("refreshToken-storage")}`
           );
       },
     ],
@@ -66,7 +66,7 @@ export const ApiClientWithAuthorization = api.extend({
 
         const data: ErrorResponse = await response.json();
 
-        if (data.code === 'ERR_ACCESS_TOKEN_EXPIRED') {
+        if (data.code === "ERR_ACCESS_TOKEN_EXPIRED") {
           return getReissueWithAuthorization(request);
         }
       },
@@ -83,7 +83,7 @@ export const ApiClientWithCookie = api.create({
 
         const data: ErrorResponse = await response.json();
 
-        if (data.code === 'ERR_ACCESS_TOKEN_EXPIRED') {
+        if (data.code === "ERR_ACCESS_TOKEN_EXPIRED") {
           return getReissueWithCookie(request);
         }
       },

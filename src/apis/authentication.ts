@@ -1,16 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
-import { KyRequest } from 'ky';
-import { useNavigate } from 'react-router-dom';
+import { useMutation } from "@tanstack/react-query";
+import { KyRequest } from "ky";
+import { useNavigate } from "react-router-dom";
 
-import { toast } from '@/components/toast/use-toast';
-import { Domain, useTokenTypeStore } from '@/store';
+import { toast } from "@/components/toast/use-toast";
+import { Domain, useTokenTypeStore } from "@/store";
 
 import {
   ApiClient,
   ApiClientWithAuthorization,
   ApiClientWithCookie,
   api,
-} from './client';
+} from "./client";
 
 interface TokenResponse {
   accessToken: string;
@@ -25,14 +25,14 @@ interface Member {
   nickname: string | null;
 }
 
-let accessToken = '';
+let accessToken = "";
 
 export const getAccessToken = () => accessToken;
 export const setAccessToken = (token: string) => (accessToken = token);
 
 const postCode = async (
   code: string,
-  domain: Domain,
+  domain: Domain
 ): Promise<TokenResponse> => {
   const response = await api.post(`${domain}/auth`, {
     json: { code },
@@ -43,7 +43,7 @@ const postCode = async (
 
 const postCodeWithAuthorization = async (
   code: string,
-  domain: Domain,
+  domain: Domain
 ): Promise<TokenWithAuthorizationResponse> => {
   const response = await api.post(`${domain}/auth/authorization`, {
     json: { code },
@@ -54,7 +54,7 @@ const postCodeWithAuthorization = async (
 
 const postCodeWithCookie = async (
   code: string,
-  domain: Domain,
+  domain: Domain
 ): Promise<TokenResponse> =>
   await api.post(`${domain}/auth/cookie`, { json: { code } }).json();
 
@@ -69,8 +69,8 @@ export const usePostCodeApi = (domain: Domain) => {
     },
     onError: () => {
       toast({
-        variant: 'destructive',
-        title: '인가 코드 전송 실패!',
+        variant: "destructive",
+        title: "인가 코드 전송 실패!",
       });
       navigate(`/oauth/${tokenType}`);
     },
@@ -86,14 +86,14 @@ export const usePostCodeWithAuthorizationApi = (domain: Domain) => {
     mutationFn: (code: string) => postCodeWithAuthorization(code, domain),
     onSuccess: (res: TokenWithAuthorizationResponse) => {
       accessToken = res.accessToken;
-      localStorage.setItem('refreshToken-storage', res.refreshToken);
+      localStorage.setItem("refreshToken-storage", res.refreshToken);
 
       navigate(`/oauth/${tokenType}`);
     },
     onError: () => {
       toast({
-        variant: 'destructive',
-        title: '인가 코드 전송 실패!',
+        variant: "destructive",
+        title: "인가 코드 전송 실패!",
       });
       navigate(`/oauth/${tokenType}`);
     },
@@ -112,8 +112,8 @@ export const usePostCodeWithCookieApi = (domain: Domain) => {
     },
     onError: () => {
       toast({
-        variant: 'destructive',
-        title: '인가 코드 전송 실패!',
+        variant: "destructive",
+        title: "인가 코드 전송 실패!",
       });
       navigate(`/oauth/${tokenType}`);
     },
@@ -128,7 +128,7 @@ const getMember = (domain: Domain): Promise<Member> => {
 
 const getMemberWithAuthorization = (domain: Domain): Promise<Member> => {
   return ApiClientWithAuthorization.get(
-    `${domain}/member/authorization`,
+    `${domain}/member/authorization`
   ).json();
 };
 
@@ -161,86 +161,84 @@ export const useGetMemberWithCookieApi = (domain: Domain) => {
 };
 
 export const getReissue = (request: KyRequest) => {
-  return ApiClient.get('auth/reissue')
-    .text()
-    .then(token => {
-      console.log('token', token);
-      setAccessToken(token);
+  return ApiClient.get("auth/reissue")
+    .json<TokenResponse>()
+    .then(({ accessToken }) => {
+      console.log("token", accessToken);
+      setAccessToken(accessToken);
       return ApiClient(request);
     })
     .catch(() => {
       toast({
-        variant: 'destructive',
-        title: 'refresh-token 만료!',
-        description: '재로그인이 필요합니다.',
+        variant: "destructive",
+        title: "refresh-token 만료!",
+        description: "재로그인이 필요합니다.",
       });
     });
 };
 
 export const getReissueWithAuthorization = (request: KyRequest) => {
-  return ApiClientWithAuthorization.get('auth/reissue/authorization')
-    .text()
-    .then(token => {
-      setAccessToken(token);
+  return ApiClientWithAuthorization.get("auth/reissue/authorization")
+    .json<TokenResponse>()
+    .then(({ accessToken }) => {
+      setAccessToken(accessToken);
       return ApiClientWithAuthorization(request);
     })
     .catch(() => {
       toast({
-        variant: 'destructive',
-        title: 'refresh-token 만료!',
-        description: '재로그인이 필요합니다.',
+        variant: "destructive",
+        title: "refresh-token 만료!",
+        description: "재로그인이 필요합니다.",
       });
     });
 };
 
 export const getReissueWithCookie = (request: KyRequest) => {
-  return ApiClientWithCookie.get('auth/reissue/cookie')
-    .then(() => {
-      return ApiClientWithCookie(request);
-    })
+  return ApiClientWithCookie.get("auth/reissue/cookie")
+    .then(() => ApiClientWithCookie(request))
     .catch(() => {
       toast({
-        variant: 'destructive',
-        title: 'refresh-token 만료!',
-        description: '재로그인이 필요합니다.',
+        variant: "destructive",
+        title: "refresh-token 만료!",
+        description: "재로그인이 필요합니다.",
       });
     });
 };
 
 export const reissue = () =>
-  ApiClient.get('auth/reissue')
-    .text()
-    .then(token => {
-      setAccessToken(token);
+  ApiClient.get("auth/reissue")
+    .json<TokenResponse>()
+    .then(({ accessToken }) => {
+      setAccessToken(accessToken);
     })
     .catch(() => {
       toast({
-        variant: 'destructive',
-        title: 'refresh-token 만료!',
-        description: '재로그인이 필요합니다.',
+        variant: "destructive",
+        title: "refresh-token 만료!",
+        description: "재로그인이 필요합니다.",
       });
     });
 
 export const reissueWithAuthorization = () =>
-  ApiClientWithAuthorization.get('auth/reissue/authorization')
-    .text()
-    .then(token => {
-      setAccessToken(token);
+  ApiClientWithAuthorization.get("auth/reissue/authorization")
+    .json<TokenResponse>()
+    .then(({ accessToken }) => {
+      setAccessToken(accessToken);
     })
     .catch(() => {
       toast({
-        variant: 'destructive',
-        title: 'refresh-token 만료!',
-        description: '재로그인이 필요합니다.',
+        variant: "destructive",
+        title: "refresh-token 만료!",
+        description: "재로그인이 필요합니다.",
       });
     });
 
 export const reissueWithCookie = () =>
-  ApiClientWithCookie.get('auth/reissue/cookie').catch(() => {
+  ApiClientWithCookie.get("auth/reissue/cookie").catch(() => {
     toast({
-      variant: 'destructive',
-      title: 'refresh-token 만료!',
-      description: '재로그인이 필요합니다.',
+      variant: "destructive",
+      title: "refresh-token 만료!",
+      description: "재로그인이 필요합니다.",
     });
   });
 
@@ -254,13 +252,13 @@ export const usePostLogoutApi = (domain: Domain) => {
   const { mutateAsync } = useMutation({
     mutationFn: () => postLogout(domain),
     onSuccess: () => {
-      setAccessToken('');
+      setAccessToken("");
     },
     onError: () => {
       toast({
-        variant: 'destructive',
-        title: '로그아웃 실패',
-        description: 'Network탭을 확인해주세요 !',
+        variant: "destructive",
+        title: "로그아웃 실패",
+        description: "Network탭을 확인해주세요 !",
       });
     },
   });
@@ -272,13 +270,13 @@ export const usePostLogoutWithAuthorizationApi = (domain: Domain) => {
   const { mutateAsync } = useMutation({
     mutationFn: () => postLogoutWithAuthorization(domain),
     onSuccess: () => {
-      setAccessToken('');
+      setAccessToken("");
     },
     onError: () => {
       toast({
-        variant: 'destructive',
-        title: '로그아웃 실패',
-        description: 'Network탭을 확인해주세요 !',
+        variant: "destructive",
+        title: "로그아웃 실패",
+        description: "Network탭을 확인해주세요 !",
       });
     },
   });
@@ -291,9 +289,9 @@ export const usePostLogoutWithCookieApi = (domain: Domain) => {
     mutationFn: () => postLogoutWithCookie(domain),
     onError: () => {
       toast({
-        variant: 'destructive',
-        title: '로그아웃 실패',
-        description: 'Network탭을 확인해주세요 !',
+        variant: "destructive",
+        title: "로그아웃 실패",
+        description: "Network탭을 확인해주세요 !",
       });
     },
   });
