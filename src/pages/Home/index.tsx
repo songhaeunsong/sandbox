@@ -1,10 +1,4 @@
-import { useEffect } from "react";
-
 const Home = () => {
-  useEffect(() => {
-    console.log("check");
-  }, []);
-
   return (
     <main className="flex flex-col justify-center w-full h-full">
       <div className="flex flex-col mx-auto">
